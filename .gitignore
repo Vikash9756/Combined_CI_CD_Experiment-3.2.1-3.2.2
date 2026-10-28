@@ -1,0 +1,6 @@
+target/
+app.jar
+.env
+*.log
+.idea/
+.vscode/

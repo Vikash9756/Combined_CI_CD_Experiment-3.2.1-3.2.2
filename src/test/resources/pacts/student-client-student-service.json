@@ -1,0 +1,54 @@
+{
+  "consumer": {
+    "name": "student-client"
+  },
+  "provider": {
+    "name": "student-service"
+  },
+  "interactions": [
+    {
+      "description": "a student exists",
+      "providerStates": [
+        {
+          "name": "a student exists"
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "path": "/api/students/1",
+        "headers": {
+          "Accept": "application/json"
+        }
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "body": {
+          "id": 1,
+          "name": "Vikash Yadav",
+          "course": "CSE Data Science"
+        },
+        "matchingRules": {
+          "$.id": {
+            "combine": "AND",
+            "matchers": [
+              {
+                "match": "type"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "metadata": {
+    "pactSpecification": {
+      "version": "3.0.0"
+    },
+    "pact": {
+      "version": "4.6.15"
+    }
+  }
+}

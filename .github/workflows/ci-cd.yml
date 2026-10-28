@@ -1,0 +1,56 @@
+name: Combined CI-CD Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Run unit, API, Pact and Testcontainers tests
+        run: mvn --batch-mode clean verify
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          path: target/surefire-reports/
+
+      - name: Build Docker image
+        run: docker build -t combined-ci-cd-experiment:${{ github.sha }} .
+
+      - name: Save Docker image as artifact
+        run: docker save combined-ci-cd-experiment:${{ github.sha }} -o combined-app-image.tar
+
+      - name: Upload Docker image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: combined-app-image
+          path: combined-app-image.tar
+
+  deploy-demo:
+    needs: test-build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: demo
+    steps:
+      - name: Explain deployment boundary
+        run: |
+          echo "CI succeeded. Docker image artifact is ready."
+          echo "For real deployment, configure a server/cluster and secrets."
+          echo "Run scripts/canary-demo.sh to demonstrate staged traffic switching."

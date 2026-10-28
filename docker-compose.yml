@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    image: combined-ci-cd-experiment:local
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD", "java", "-version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
